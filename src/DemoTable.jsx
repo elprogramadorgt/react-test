@@ -11,10 +11,11 @@ import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { DataGridPro } from "@mui/x-data-grid-pro";
+import { DataGridPro, GridColumnMenu } from "@mui/x-data-grid-pro";
 import { Button, FormControl, Select, Stack, TextField } from "@mui/material";
 import { useState } from "react";
 import CloseIcon from '@mui/icons-material/Close';
+import MenuFilter from "./Filter/Menu";
 
 
 
@@ -23,16 +24,17 @@ const ITEM_HEIGHT = 48;
 
 
 const dataTest = [
-    { "id": 1, "name": "John", "lastName": "Doe" },
-    { "id": 2, "name": "Jane", "lastName": "Smith" },
-    { "id": 3, "name": "Bob", "lastName": "Johnson" },
-    { "id": 4, "name": "Alice", "lastName": "Williams" },
-    { "id": 5, "name": "Charlie", "lastName": "Brown" },
-    { "id": 6, "name": "Eva", "lastName": "Miller" },
-    { "id": 7, "name": "Frank", "lastName": "Jones" },
-    { "id": 8, "name": "Grace", "lastName": "Davis" },
-    { "id": 9, "name": "Henry", "lastName": "Wilson" },
-    { "id": 10, "name": "Ivy", "lastName": "Taylor" }
+    { "id": 1, "name": "John", "lastName": "Doe", age: 15 },
+    { "id": 2, "name": "Jane", "lastName": "Smith", age: 15 },
+    { "id": 3, "name": "Bob", "lastName": "Johnson", age: 15 },
+    { "id": 4, "name": "Alice", "lastName": "Williams", age: 15 },
+    { "id": 5, "name": "Charlie", "lastName": "Brown", age: 15 },
+    { "id": 6, "name": "Eva", "lastName": "Miller", age: 15 },
+    { "id": 7, "name": "Frank", "lastName": "Jones", age: 15 },
+    { "id": 8, "name": "Grace", "lastName": "Davis", age: 15 },
+    { "id": 9, "name": "Henry", "lastName": "Wilson", age: 15 },
+    { "id": 10, "name": "Ivy", "lastName": "Taylor", age: 15 },
+    { "id": 11, "name": "John", "lastName": "Does", age: 15 },
 ]
 
 
@@ -59,17 +61,19 @@ export default function DemoTable() {
             field: 'id',
             headerName: "ID",
             type: "number",
-            width: 150
+            width: 150,
         },
         {
             field: 'name',
             headerName: "Name",
             type: "string",
+
         },
         {
             field: 'lastName',
             headerName: "Last Name",
             type: "string",
+
         },
 
         {
@@ -77,10 +81,11 @@ export default function DemoTable() {
             headerName: "",
             disableColumnMenu: true,
             sortable: false,
-            renderHeader: () => {
-                return <Button onClick={() => { setFilteredData(data) }}><CloseIcon /> </Button>
-            }
-            // type: "string",
+            // renderHeader: () => {
+            //     return <Button onClick={() => { setFilteredData(data) }}><CloseIcon /> </Button>
+            // },
+
+            type: "string",
         }
 
 
@@ -108,74 +113,78 @@ export default function DemoTable() {
 
     }
 
+
     function CustomMenu(props) {
+        const [formData, setFormData] = useState({
+            filterValue: "",
+            filterOption: "startsWidth",
+        });
+        const handleChange = (e) => {
+            const { name, value } = e.target;
 
-        const [inputValue, setInputValue] = useState('');
-
-        const handleInputChange = (event) => {
-            console.log(event.target.value, "value")
-            setInputValue(event.target.value);
+            setFormData((prevData) => ({
+                ...prevData,
+                [name]: value,
+            }));
         };
 
-        const [selectedValue, setSelectedValue] = useState('');
+        console.log(props.colDef.type, "filterType")
 
-        const handleChange = (event) => {
-            setSelectedValue(event.target.value);
-        };
-
-        // if(props.colRef.fie)
-        // console.log(props.colDef.field, props.colDef.type)
-
-        if (props.colDef.field == "name") {
-            return (<FormControl fullWidth>
-                <Select
-                    // value={option}
-                    // onChange={handleChangeFilterOperator}
-                    size="small"
-                >
-                    <MenuItem value="startWidth">Starts With</MenuItem>
-                    <MenuItem value="isEqualTo">Is Equal To</MenuItem>
-                    <MenuItem value="contains">Contains</MenuItem>
-                </Select>
-                <TextField
-                    value={inputValue}
-                    onChange={handleInputChange}
-                    placeholder="Value"
-                    variant="outlined"
-                    size="small"
-                    sx={{ pt: 2 }}
-                />
-                <Stack
-                    spacing={2}
-                    direction="row"
-                    justifyContent="space-between"
-                    sx={{ pt: 2 }}
-                >
-                    <Button
-                        // id={id}
+        if (props.colDef.type == "string") {
+            return (
+                <FormControl fullWidth sx={{ padding: 2 }}>
+                    <Select
+                        name="filterOption"
+                        value={formData.filterOption}
+                        onChange={handleChange}
+                        size="small"
+                    >
+                        <MenuItem value="startsWidth">Starts With</MenuItem>
+                        <MenuItem value="isEqualTo">Is Equal To</MenuItem>
+                        <MenuItem value="contains">Contains</MenuItem>
+                    </Select>
+                    <TextField
+                        value={formData.filterValue}
+                        name="filterValue"
+                        onChange={handleChange}
+                        placeholder="Value"
                         variant="outlined"
-                        color="secondary"
                         size="small"
-                        sx={{ px: 4 }}
-                    // onClick={onClickClean}
+                        sx={{ pt: 2 }}
+                    />
+                    <Stack
+                        spacing={2}
+                        direction="row"
+                        justifyContent="space-between"
+                        sx={{ pt: 2 }}
                     >
-                        Clear
-                    </Button>
-                    <Button
-                        // id={id}
-                        variant="contained"
-                        size="small"
-                        sx={{ px: 4 }}
-                        onClick={() => filterData(inputValue)}
-                    >
-                        Filter
-                    </Button>
-                </Stack>
-            </FormControl>)
+                        <Button
+                            // id={id}
+                            variant="outlined"
+                            color="secondary"
+                            size="small"
+                            sx={{ px: 4 }}
+                        // onClick={() => cleanFilter(props.colDef.field)}
+                        >
+                            Clear
+                        </Button>
+                        <Button
+                            // id={id}
+                            variant="contained"
+                            size="small"
+                            sx={{ px: 4 }}
+                        // onClick={() => applyFilter(formData, props.colDef.field)}
+                        >
+                            Filter
+                        </Button>
+                    </Stack>
+                </FormControl>
+            );
         }
 
-        return <h1>Otro menu</h1>
+        return <h1>Otro menu</h1>;
     }
+
 
     const [isColumnMenuOpen, setIsColumnMenuOpen] = useState(false);
 
@@ -187,15 +196,15 @@ export default function DemoTable() {
         setIsColumnMenuOpen(false);
     };
 
+
     return (
 
         <div style={{ width: "100%" }}>
             <DataGridPro columns={colums} rows={filteredData}
                 slots={{
-                    columnMenu: CustomMenu
+                    columnMenu: MenuFilter
                 }}
-                onColumnMenuOpen={handleColumnMenuOpen}
-                onColumnMenuClose={handleColumnMenuClose}
+
 
             />
         </div>
